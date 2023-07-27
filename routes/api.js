@@ -1,20 +1,19 @@
 const express = require('express');
 const router = express.Router();
-const { check } = require('express-validator');
+const { loginValidation, registerValidation } = require('../middlewares/authValidation');
+const { createPostValidator } = require('../middlewares/postValidation');
 const authController = require('../controllers/authController');
+const authMiddleware = require('../middlewares/authMiddleware');
+const postController = require('../controllers/postController');
 
 //call url
-router.post('/register', [
-     check('name', 'Name is Required').notEmpty(),
-     check('email', 'Email is Required').notEmpty(),
-     check('password', 'Password must be 6 characters Long').isLength({
-        min:6,
-     }),
-], authController.register);
+router.post('/register', registerValidation, authController.register);
 
-router.post('/login',[
-    check('email', 'Email is Required').notEmpty(),
-    check('password', 'Password is Required').notEmpty()
-], authController.login);
+router.post('/login',loginValidation , authController.login);
+
+
+//protected routes for post
+router.post('/post', authMiddleware, createPostValidator, postController.createPost );
+
 
 module.exports = router;
